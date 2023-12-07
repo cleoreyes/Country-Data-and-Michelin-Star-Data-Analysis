@@ -1,0 +1,281 @@
+---
+title: "201 Final Project"
+author: "Allen Zheng, Cleo Reyes, Nathan Dang, Jake Ku"
+date: "2023-11-29"
+output: html_document
+---
+# Introduction
+  For our project, our group chose to explore the distribution of Michelin-starred restaurants across various countries. This is an interesting topic because it shows what variables contribute to a country having more Michelin star restaurants than other countries.By scrutinizing this data, we aim to gain insights not only about the exceptional dining experiences but also to reveal intriguing correlations with diverse demographic elements within each country.
+
+  From analyzing information from various sources, including media and literature, we've discerned significant disparities between countries with and without Michelin-starred establishments. Beyond being a point of pride for restaurant owners, the presence of Michelin stars holds intrinsic value for both the nation and its citizens. Notably, this serves as a virtuous asset, with the potential to enhance a country's appeal to tourists, thereby bolstering the country's economic prosperity.
+
+  For our project we are comparing how many Michelin star restaurants there are in each country, the most common cuisines in each Michelin star restaurant depending on the country of origin, and how the GDP of each country compares to the amount of Michelin star restaurants there are located in the country. Central to our investigation is the query: How is the distribution of Michelin-starred restaurants dispersed across different countries, and what correlations emerge between this distribution and factors like economic development and culinary traditions? For our other comparisons, such as the most common cuisines and the GDP of the countries, we created research questions that would relate to them as well. Beyond this, we delve into the intricacies of culinary landscapes by posing questions such as: Does the higher or lower rates of a Michelin star restaurant have any correlation to the amount of stars a Michelin star restaurant has? Simultaneously, we explore the economic aspect, inquiring: How is the Gross Domestic Product (GDP) of a country linked to the quantity of Michelin-starred restaurants, and what economic factors or disparities contribute to the observed differences in the prevalence of these establishments among various nations? Our project aims to educate individuals on the correlations between Michelin-starred restaurants and the countries they inhabit, shedding light on specific details such as the culinary preferences, economic dynamics, and cultural influences that shape this unique landscape.
+
+  Our project, focused on comparing the prevalence of Michelin-starred restaurants across diverse countries, delving into a captivating and multifaceted topic. Beyond merely highlighting esteemed establishments, it unveils the intricate variables contributing to the existence of Michelin-starred restaurants. Our report places particular emphasis on exploring the reasons behind the varying prevalence of Michelin stars among different countries.
+
+# Data
+
+  Our group selected these datasets to explore the correlation between a country's overall data and its standing in a prestigious institution like Michelin stars. These datasets not only contain the essential columns for seamless comparisons but also boast an optimal volume of data. With comprehensive statistics and information at our disposal, these datasets serve as the baseline for bringing our envisioned project.
+
+  Our dataset was sourced from Kaggle, where we carefully selected data specific to country statistics and Michelin-starred restaurants. To ensure precision, we extracted the pertinent information from each dataset, meticulously separating the essential data from extraneous details.In the process of data collection, our group collectively scoured Kaggle for datasets aligning with our project standards. Through a systematic comparison of various datasets related to our overarching theme, we honed in on two datasets that best met our criteria.  
+
+  Our dataset was discovered on an open-source platform that generously grants users access to a wide array of datasets uploaded to the site. The majority of data usage permissions on this platform are open to all, fostering a collaborative environment where the information we obtain can be freely shared and disseminated among interested parties. Notably, the dataset comes with minimal restrictions on its utilization, ensuring both reliability and adherence to the rules governing data usage permissions for our project.
+
+  For our dataset on country statistics, the population encompasses all the diverse countries included in the dataset. The samples within the country dataset span key statistical indicators for each country, including population, GDP, and land area. As for our Michelin star dataset, the population comprises the various Michelin-starred restaurants situated worldwide in different countries. The sample data extracted from this dataset encompasses crucial details such as the number of stars, cuisine offerings, and precise locations, providing a comprehensive insight into the culinary landscape across the globe.
+
+  The rows in our dataset represent the country statistics and one row for the sum of the michelin stars in each country, more specifically for the statistics in the rows that were focused on the country data were, GDP, population, land mass(km2), minimum wage, and price rating. In our dataset we have 204 observations after we cleaned and merged all the data.
+
+  One of the relevant variables is “Country.” This variable is relevant as it describes the country in which the observation is about. It is coded scraping the country name from the “Location” variable previously included in the "Michelin Guide Restaurants” dataset and joining it together with the “Country” variable Global Country Information Dataset 2023 dataset creating one “Country” variable in the final dataset. We did this because it would be able to show the disparities between countries which have Michelin Stars and which don’t to have more transparent data with a wider scope. 
+
+  Another relevant variable is “Sum Stars.” This variable is relevant as it describes how many Michelin Stars there are in a specific country. It is coded by taking the “Award” variable in the "Michelin Guide Restaurants” dataset and scraping only the numerical value of how many stars were awarded to a restaurant a number, after that we grouped by country to make a new column to get the sum of stars in a country so that we could use it to graph our data.
+
+  Another relevant variable dataset is “GDP.” This variable is relevant as it describes the Gross Domestic Product of its respective country in the currency in USD. This variable was coded by using the “GDP” variable in the "Michelin Guide Restaurants” dataset. After that because the code was in the form of a character we needed it to be a numeric variable. The first step we took to achieve this was removing any characters that were not numbers, specifically the dollar sign ($) and the comma (,) as it was included in the dataset we were using. After that, we then changed the form of the variable from character to variable so we could use it continuously in the graphs.
+
+  Another relevant variable in our dataset is “Minimum wage.” This variable is relevant because it describes the minimum wage in USD of each country in the dataset. This variable was coded by using the base “Minimum wage” variable in the “Global Country Information Dataset 2023” dataset. This variable had to be transformed because it was previously in the form of a character which is not a continuous variable that could be graphed in the way that we wanted. In order to achieve this, we first began with removing all characters from the value that were not numeric and for this case it was the dollar sign ($), we did not remove the period (.) as it is needed to tell the decimal placement for these numbers. After that, we converted it from the previous form of the variable being character to double being numeric which we could then use as a continuous variable when graphing our dataset.
+
+  The last relevant in our dataset is “Price Rating.” This variable is relevant because it represents the average different levels of price in the countries. This variable was coded by first using the base “Price” variable from the “Michelin Guide Restaurants” which was the country’s respective currency sign ranging from a count of one to four. With this, we created a new column that had the number of characters in that value. With that, we grouped by country and then took the average amount of characters there were in that new column. After that we assigned new categorical values of “Cheap”, “Affordable”, “Pricey”, and “Premium” for numbers 1 to 4 respectively.
+  
+  In our dataset, there are a few missing values. Most of these missing values came from the joining of the two datasets as many of the countries in the “Global Country Information Dataset 2023” dataset were not included in the “Michelin Guide Restaurants” creating these missing NA values. For the dataset the variable “GDP” had 11 missing values, “Population” had 10, “Minimum wage" had 54, and “Price Rating” had 161. A small majority of these are missing because they were never there to begin in the original datasets. There are no implausible values nor any quality issues.
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+michelin_data <- read_delim("michelin_my_maps.csv")
+country_data <-  read_delim("world-data-2023.csv")
+```
+
+
+```{r}
+michelin_data <- michelin_data %>% 
+  select(!c(Name, 
+            Address, 
+            Longitude, 
+            Latitude, 
+            PhoneNumber, 
+            Url, 
+            Description, 
+            WebsiteUrl, 
+            FacilitiesAndServices))
+
+```
+
+
+```{r}
+michelin_data$'Number of Stars' <- as.numeric(gsub("[^0-9.]", "", michelin_data$Award))
+
+```
+
+```{r}
+michelin_data$price_rating <- nchar(as.character(michelin_data$Price))
+
+
+michelin_data <- michelin_data %>%  
+  select(Location, "Number of Stars", price_rating, Award)
+
+```
+
+
+```{r}
+## Grabbing country name from location and sorting it in new column
+michelin_data$country <- ifelse(grepl(",", michelin_data$Location), sub(".*,\\s*", "", michelin_data$Location), michelin_data$Location)
+michelin_data <- michelin_data %>% select(!c(Location, Award))
+
+# Rearranging columns
+michelin_data <- michelin_data %>% 
+  select(country, `Number of Stars`, price_rating)
+
+# Creates a new column with sum of stars for each country
+michelin_data <- michelin_data %>%
+  group_by(country) %>%
+  mutate(SumStars = sum(`Number of Stars`, na.rm = TRUE)) %>% 
+  mutate(price_rating = mean(price_rating), na.rm = TRUE)
+
+michelin_data$price_rating <- round(michelin_data$price_rating)
+  
+michelin_data <- michelin_data %>%
+  distinct(country, SumStars, price_rating)
+
+# Changes USA to United States
+michelin_data[3, "country"] <- "United States"
+
+# Adduing Hong Kong SAR stars to Hong Kong
+michelin_data[8, "SumStars"] <- michelin_data[8, "SumStars"] + michelin_data[9, "SumStars"]
+
+# Getting rid of Hong Kong SAR row
+michelin_data <- michelin_data[michelin_data$country != "Hong Kong SAR China", ]
+
+michelin_data$`Price Rating` <- ifelse(michelin_data$price_rating == 1, "Cheap",
+                        ifelse(michelin_data$price_rating == 2, "Affordable",
+                               ifelse(michelin_data$price_rating == 3, "Pricey",
+                                      ifelse(michelin_data$price_rating == 4, "Premium", NA))))
+
+michelin_data$`Sum Stars` <- michelin_data$SumStars
+
+michelin_data <- michelin_data %>%
+  select(country, `Sum Stars`, `Price Rating`)
+
+
+```
+
+
+```{r}
+country_data <- country_data %>% 
+  select(!c(Abbreviation, 
+            `Agricultural Land( %)`, 
+            `Armed Forces size`, 
+            `Calling Code`, 
+            `Capital/Major City`, 
+            `Co2-Emissions`, CPI, 
+            `CPI Change (%)`, 
+            `Currency-Code`, 
+            `Forested Area (%)`, 
+            `Gasoline Price`, 
+            `Largest city`, 
+            `Official language`, 
+            `Out of pocket health expenditure`, 
+            `Physicians per thousand`, 
+            Latitude, 
+            Longitude, 
+            `Gross primary education enrollment (%)`, 
+            `Gross tertiary education enrollment (%)`, 
+            'Birth Rate', 
+            'Fertility Rate', 
+            'Infant mortality', 
+            'Life expectancy', 
+            'Maternal mortality ratio', 
+            'Population: Labor force participation (%)', 
+            'Tax revenue (%)', 
+            'Total tax rate', 
+            'Unemployment rate'))
+
+```
+
+
+
+```{r}
+countrydatamichelin <- full_join(country_data, michelin_data,
+          by = c(Country = "country"))
+countrydatamichelin <- countrydatamichelin %>% mutate(`Sum Stars` = ifelse(is.na(`Sum Stars`), 0, `Sum Stars`))
+
+
+# Remove the dollar sign from the character column
+countrydatamichelin$GDP <- gsub("\\$", "", countrydatamichelin$GDP)
+countrydatamichelin$GDP <- gsub("\\,", "", countrydatamichelin$GDP)
+
+# Convert the modified column to numeric
+countrydatamichelin$GDP <- as.numeric(countrydatamichelin$GDP)
+
+# Moving around columns
+countrydatamichelin <- countrydatamichelin %>% 
+  select(Country, `Sum Stars`, GDP, Population, `Land Area(Km2)`, `Minimum wage`, `Price Rating`)
+
+# Remove the dollar sign from the character column
+countrydatamichelin$`Minimum wage` <- gsub("\\$", "", countrydatamichelin$`Minimum wage`)
+countrydatamichelin$`Minimum wage` <- as.numeric(countrydatamichelin$`Minimum wage`)
+write.csv(countrydatamichelin, "Countries and Michelin Stars.csv")
+head(countrydatamichelin, 25)
+```
+
+# Methods
+
+After deciding to compare countries and Michelin star restaurants we found two data sets. The first data set contains the most recent data about all the countries in the world. The categories range from GDP, population, life expectancy, to even tax rates. The second dataset contains information about all of the Michelin star restaurants around the world with columns like the price, how many stars, location, and type of cuisine. We decided to merge the two data sets through the country name. This means the data from the Michelin data set would be generalized for each country. 
+	
+In deciding what variables we wanted we filtered through all of the available columns in the country data set. We removed any columns that were not related to restaurants. These included categories like abbreviations, calling code, fertility rate, largest city, tax rate, and life expectancy. The categories we kept from the country data set were the country’s name, GDP, population, and minimum wage. We felt these categories correlated well with determining how many Michelin star restaurants are in the country as well as how many stars each country collected. GDP and minimum wage relate to how much people are willing to spend on eating out, especially at the higher end restaurants Michelin reviews. Population was also important to use because the more people and land a country has, the more likely there are going to be Michelin star restaurants, so we thought. Because our goal is to show which countries have the most Michelin stars. From the Michelin data set we included 3 rows: location, price, and stars. Outside of location, we choose price and stars over cuisine and facilities because the price and the amount of stars is usually what will make or break someone going to a restaurant. 
+
+After choosing which categories we wanted to keep, we had to clean the Michelin data as it was organized by restaurant and not by country. We went through the Michelin dataset filtering each restaurant by country. Organically, the location of the restaurant included the city and the country so we had to remove the city name from the values first before grouping by country. By grouping the restaurants by country, we were able to calculate the total number of stars in each country by adding up the stars awarded column from the Michelin dataset. We choose this over counting how many 1 star, 2 star, and 3 star restaurants are in each country because we believe that if someone wanted to visit more Michelin star restaurants, it would be easier to use the data and find countries they can visit for these restaurants. For the pricing rating, we used the pricing category in the Michelin dataset and adjusted it so the single symbol or € would equate to cheap, €€ would be affordable, €€€ would be pricey, and €€€€ would be premium. We then averaged all of the restaurants in each country to find the cost to eat at a Michelin restaurant. We did this by counting how many symbols were in the price category and then taking it as a number and then finding that average. Because we don’t know the exact price to eat at each restaurant, we assumed based on the characters and created a new category to make it easier to read and understand. 
+
+Our sample was selected by specifically searching for datasets that encompassed the entire scope we wanted for our project. The global dataset was easier to select as it contained data from each country in the world so we kept all rows and a couple columns of categories. The Michelin dataset we had to be more specific without our sample. The dataset included restaurants that received Bib Gourmand awards which did not fit our scope. We only wanted restaurants that received official stars which cut down the dataset by around 50%. We went with this specific dataset as the creator of Kaggle stated it was updated every quarter which means it is the most up to date. 
+
+Regarding technical decisions, we choose not to remove any missing values as it means the data for that country is not collected. As the Michelin dataset was very recently updated, there were no missing values we needed to worry about. However, for the country dataset, there were several missing values but we choose not to remove those as well. It would be very inaccurate for us to make up data about a country and would skew the graph and results heavily. When joining the data, the countries that do not contain restaurants were missing values for the total number of stars but we replaced those with 0 as the NA represents 0 stars earned. 
+
+We did not do any complex statistical methods as we were able to do basic plots for our data. We used scatter plots to compare the country data to each country’s number of stars as well as the average prices of the restaurants. 
+
+# Results 
+
+We examined four different factors that could affect the number of total Michelin Stars a country has. First, we looked at the relationship between a country’s minimum wage and its total number of Michelin Stars. Secondly, we looked at the relationship between a country’s GDP and its total number of Michelin Stars. Third, we looked at the relationship between a country’s population and its total number of Michelin Stars. Lastly, we looked at the relationship between a country’s average price rating (cheap, affordable, pricey, premium) across its restaurants and the total number of Michelin Stars. Overall, we found out that there is a positive trend between a country’s economic factors (GDP and minimum wage) and total number of Michelin Stars. We also found out that there is a very slight positive trend between a country’s population and its total number of Michelin Stars. Lastly, among other smaller findings, we found out that the majority of countries’ restaurants had an average price rating of “pricey” or “affordable”.
+
+
+```{r}
+countrydatamichelin %>% 
+  ggplot(aes(x = `Minimum wage`, y = `Sum Stars`, size = `Sum Stars`, col = `Sum Stars`)) +
+  geom_point(alpha = 0.3, na.rm = TRUE) +
+  scale_size_continuous(range = c(1, 20)) +
+  labs(title="Michelin Stars per Country compared to Minimum Wage (USD)",
+        x ="Minimum Wage (USD)", 
+       y = "Michelin Stars",
+       color = "Number of stars",
+       size = "Number of stars")
+```
+
+```{r}
+countrydatamichelin %>% ggplot(aes(x = GDP, y = `Sum Stars`, size = `Sum Stars`, col = `Sum Stars`)) + 
+  geom_point(alpha = 0.3, na.rm = TRUE) + 
+  scale_size_continuous(range = c(1, 20)) +
+  labs(title = "GDP vs Michelin Star Count", 
+       x = "GDP", 
+       y = "Total Michelin Stars", 
+       size = "Number of Stars",
+       color = "Number of Stars")
+```
+
+
+```{r}
+countrydatamichelin %>%
+  ggplot(aes(x = Population, y = `Sum Stars`, size = `Sum Stars`, col = `Sum Stars`)) +
+  geom_point(alpha = 0.3, na.rm = TRUE) + 
+  scale_size_continuous(range = c(1, 20)) +
+  labs(title = "Population vs Michelin Star Count", 
+       x = "Population", 
+       y = "Total Michelin Stars", 
+       size = "Number of Stars",
+       color = "Number of Stars")
+```
+
+```{r}
+library(ggrepel)
+```
+
+
+```{r}
+countrydatamichelin %>% na.omit(countrydatamichelin$`Price Rating`) %>%
+  ggplot(aes(`Price Rating`, `Sum Stars`)) +
+  geom_point(position = position_jitter(width=0.3),alpha=0.3, size = 2) +
+geom_text_repel(aes(label = Country),
+                  box.padding   = 0.35, 
+                  point.padding = 0.5,
+                  segment.color = 'grey50') + labs(title = "Number of Stars vs Price Rating", x = "Price Rating", y = "Number of Stars")
+``````
+
+# Findings 
+
+Our results showed that the questions we asked in the introduction were able to be concluded and solved, our results revealed many  insightful answers that showed the underlying reasons behind each response. The synthesis of configuring data and visually represented graphs in our final presentation allowed us to draw detailed and concise conclusions. Notably, our findings demonstrated a clear correlation between a country's economic indicators, including GDP, minimum wage, restaurant price range, and the prevalence of Michelin star establishments. Through our results, we were able to conclude that Countries boasting higher economic values not only housed a greater number of Michelin star restaurants but also had more Michelin star restaurants with higher-stars, in terms of the disparity of a one, two, and three star restaurant.
+
+We are confident in the validity of our claims, we anticipate the relevance of our data. The variables we scrutinized consistently aligned with the predictions we made beforehand, leading us to believe that countries with higher and greater economic values will continue to foster the growth of Michelin star restaurants over time. Our expectations on our data extends to the durability of our data's reliability and continuity, foreseeing minimal limitations in the foreseeable future. 
+
+The only limitations that may occur when collecting data would be, missing data or limited sample sizes for some datasets, these are factors that can occur in any dataset, but they are limitations when trying to find data that can be extended for as long as possible. However, these are limitations that can be resolved, therefore, we believe that for the foreseeable future the claims we made on our data will be able to prevail and it will be a reliable source of data for as long as countries and michelin star restaurants are present in our world.
+
+To  broaden the scope of our claims and narratives, an expansion of the research we should be examining and doing research on is needed in order to extend our stories and data, making sure that our data and analysis is able to be sustainable and be extended for as long as it can. Another way to extend our claims and stories would be,  securing more insightful and detailed information and statistics on countries and Michelin star restaurants will be pivotal in our path to extend our data as far as we can with no limitations. With a more nuanced dataset, our research and analysis can reach greater depths, yielding more thorough insights and enduring results. 
+
+As for the steps we can take to reach longevity of the data we may want to collect would be to create more complex datasets that many people might not know of, but would be relevant in improving future work and keep our story relevant for a long time.  The inclusion of additional data points and the creation of more complex and diverse datasets will empower us to conduct a comprehensive review for an extended period, ensuring the longevity and relevance of our findings. 
+
+
+# Summary 
+
+Our project focuses on exploring the distribution of Michelin-starred restaurants across different countries. This topic is intriguing as it unravels the variables influencing a country's Michelin star prevalence, offering insights into culinary landscapes and economic dynamics. Our research questions delve into factors such as GDP, minimum wage, population, and restaurant price range to understand the correlations shaping the Michelin star landscape. This analysis is not only about exceptional dining experiences but also about uncovering connections with demographic elements within each country. 
+
+For our datasets, we selected them from Kaggle, which included comprehensive information on country statistics and Michelin-starred restaurants. The datasets are freely accessible, promoting collaboration and data sharing. We selected two datasets, the country dataset covers key indicators for each country, and the Michelin dataset which details restaurant locations, prices, and stars. The final dataset combines these, linking country statistics with Michelin star information, creating a comprehensive resource for our analysis. 
+
+Our method involved merging datasets through the country name, filtering relevant variables, and cleaning the Michelin data for country-level analysis. We selected variables like GDP, population, price, and minimum wage, as they align with our research questions. Cleaning involved converting variables to numeric formats and handling missing values without skewing results. 
+
+We opted for basic plots, such as scatter plots, to visually analyze the relationships between economic factors, population, price ratings, and Michelin stars. Our results showed the relationships between a country's economic factors, population, and average price rating with Michelin stars. We found positive trends between GDP and minimum wage and the total number of Michelin stars. A slight positive trend also existed between population and Michelin stars. Notably, the majority of countries had restaurants with an average price rating of "pricey," "affordable," “cheap,” and premium. To conclude, our results support the claims made in the introduction, emphasizing the positive correlation between economic factors and Michelin stars. Countries with higher GDP and minimum wage values tend to have more Michelin star restaurants. However, limitations include missing data and potential biases in the datasets. To extend our claims, securing more insightful data and creating complex datasets will be essential, ensuring the sustainability and relevance of our findings over time. Our project successfully addressed the research questions, providing valuable insights into the factors influencing Michelin star prevalence. While confident in our current claims, ongoing research and the creation of more complex datasets will be crucial for extending the longevity and relevance of our findings.
+
+
+
+
+
+
+
+
