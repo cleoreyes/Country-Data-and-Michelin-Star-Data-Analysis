@@ -18,7 +18,6 @@ Some columns have missing values:
   Total Number of Stars: 0 
   GDP: 11
   Population: 10 
-  Land Area(Km2): 10
   Minimum wage: 54
   Price Rating: 161
   
