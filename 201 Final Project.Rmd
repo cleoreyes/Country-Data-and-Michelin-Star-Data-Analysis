@@ -4,6 +4,12 @@ author: "Allen Zheng, Cleo Reyes, Nathan Dang, Jake Ku"
 date: "2023-11-29"
 output: html_document
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE,
+                      warning = FALSE)
+```
+
+
 # Introduction
   For our project, our group chose to explore the distribution of Michelin-starred restaurants across various countries. This is an interesting topic because it shows what variables contribute to a country having more Michelin star restaurants than other countries.By scrutinizing this data, we aim to gain insights not only about the exceptional dining experiences but also to reveal intriguing correlations with diverse demographic elements within each country.
 
@@ -176,8 +182,10 @@ countrydatamichelin <- countrydatamichelin %>%
 countrydatamichelin$`Minimum wage` <- gsub("\\$", "", countrydatamichelin$`Minimum wage`)
 countrydatamichelin$`Minimum wage` <- as.numeric(countrydatamichelin$`Minimum wage`)
 write.csv(countrydatamichelin, "Countries and Michelin Stars.csv")
-head(countrydatamichelin, 25)
+countrydatamichelin
 ```
+
+
 
 # Methods
 
@@ -197,12 +205,30 @@ We did not do any complex statistical methods as we were able to do basic plots 
 
 We examined four different factors that could affect the number of total Michelin Stars a country has. First, we looked at the relationship between a country’s minimum wage and its total number of Michelin Stars. Secondly, we looked at the relationship between a country’s GDP and its total number of Michelin Stars. Third, we looked at the relationship between a country’s population and its total number of Michelin Stars. Lastly, we looked at the relationship between a country’s average price rating (cheap, affordable, pricey, premium) across its restaurants and the total number of Michelin Stars. Overall, we found out that there is a positive trend between a country’s economic factors (GDP and minimum wage) and total number of Michelin Stars. We also found out that there is a very slight positive trend between a country’s population and its total number of Michelin Stars. Lastly, among other smaller findings, we found out that the majority of countries’ restaurants had an average price rating of “pricey” or “affordable”.
 
+```{r}
+library(ggrepel)
+```
+
+```{r}
+countrydatamichelin %>% ggplot(aes(x = GDP, y = `Sum Stars`, size = `Sum Stars`)) + 
+  geom_point(alpha = 0.3, na.rm = TRUE) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_size_continuous(range = c(1, 20)) +
+  labs(title = "GDP vs Michelin Star Count", 
+       x = "GDP", 
+       y = "Total Michelin Stars", 
+       size = "Number of Stars")
+```
+
+From Figure 1, we observed that there is a positive correlation between a country’s GDP and the total number of Michelin Stars it has. This means that the countries with higher GDPs will tend to have a higher total number of Michelin Star counts. In the graph it can also be seen that there are not many outliers, there is only one outlier located there, which is one of the countries with a very high GDP but presumably 0 Michelin Stars.
+
 
 ```{r}
 countrydatamichelin %>% 
-  ggplot(aes(x = `Minimum wage`, y = `Sum Stars`, size = `Sum Stars`, col = `Sum Stars`)) +
+  ggplot(aes(x = `Minimum wage`, y = `Sum Stars`)) +
   geom_point(alpha = 0.3, na.rm = TRUE) +
   scale_size_continuous(range = c(1, 20)) +
+  geom_smooth(method = "lm", se = FALSE)+
   labs(title="Michelin Stars per Country compared to Minimum Wage (USD)",
         x ="Minimum Wage (USD)", 
        y = "Michelin Stars",
@@ -210,34 +236,20 @@ countrydatamichelin %>%
        size = "Number of stars")
 ```
 
+From Figure 2, we noticed that the graph gradually trends up as the minimum wage value increases. It also appeared to us that there is a cluster of points between the minimum wage values 0 and 5. Most of the points (representing countries) in the cluster of points have 0 Michelin Stars, with some having between 1 and 70 stars. 
+
 ```{r}
-countrydatamichelin %>% ggplot(aes(x = GDP, y = `Sum Stars`, size = `Sum Stars`, col = `Sum Stars`)) + 
-  geom_point(alpha = 0.3, na.rm = TRUE) + 
+countrydatamichelin %>% ggplot(aes(x = GDP, y = `Sum Stars`)) + 
+  geom_point(alpha = 0.3, na.rm = TRUE) +
+  geom_smooth(method = "lm", se = FALSE) +
   scale_size_continuous(range = c(1, 20)) +
   labs(title = "GDP vs Michelin Star Count", 
        x = "GDP", 
        y = "Total Michelin Stars", 
-       size = "Number of Stars",
-       color = "Number of Stars")
+       size = "Number of Stars")
 ```
 
-
-```{r}
-countrydatamichelin %>%
-  ggplot(aes(x = Population, y = `Sum Stars`, size = `Sum Stars`, col = `Sum Stars`)) +
-  geom_point(alpha = 0.3, na.rm = TRUE) + 
-  scale_size_continuous(range = c(1, 20)) +
-  labs(title = "Population vs Michelin Star Count", 
-       x = "Population", 
-       y = "Total Michelin Stars", 
-       size = "Number of Stars",
-       color = "Number of Stars")
-```
-
-```{r}
-library(ggrepel)
-```
-
+It can be seen in Figure 3 that the points very slightly trend up as the “Population” value increases. There are multiple points on the graph with “Population” values smaller than 5e+08 but “Total Michelin Stars” values of 300 or more, which makes them outliers to the trendline.
 
 ```{r}
 countrydatamichelin %>% na.omit(countrydatamichelin$`Price Rating`) %>%
@@ -246,8 +258,47 @@ countrydatamichelin %>% na.omit(countrydatamichelin$`Price Rating`) %>%
 geom_text_repel(aes(label = Country),
                   box.padding   = 0.35, 
                   point.padding = 0.5,
-                  segment.color = 'grey50') + labs(title = "Number of Stars vs Price Rating", x = "Price Rating", y = "Number of Stars")
-``````
+                  segment.color = 'grey50') + 
+  labs(title = "Price Rating vs Michelin Star Count", y = "Total Michelin Stars")
+```
+
+```{r}
+set.seed(3)
+countrydatamichelin <- full_join(country_data, michelin_data,
+          by = c(Country = "country"))
+countrydatamichelin <- countrydatamichelin %>% mutate(`Sum Stars` = ifelse(is.na(`Sum Stars`), 0, `Sum Stars`))
+
+
+
+# Remove the dollar sign from the character column
+countrydatamichelin$GDP <- gsub("\\$", "", countrydatamichelin$GDP)
+countrydatamichelin$GDP <- gsub("\\,", "", countrydatamichelin$GDP)
+
+
+# Convert the modified column to numeric
+countrydatamichelin$GDP <- as.numeric(countrydatamichelin$GDP)
+
+
+# Moving around columns
+countrydatamichelin <- countrydatamichelin %>% 
+  select(Country, `Sum Stars`, GDP, Population, `Land Area(Km2)`, `Minimum wage`, `Price Rating`)
+
+
+# Remove the dollar sign from the character column
+countrydatamichelin$`Minimum wage` <- gsub("\\$", "", countrydatamichelin$`Minimum wage`)
+countrydatamichelin$`Minimum wage` <- as.numeric(countrydatamichelin$`Minimum wage`)
+countrydatamichelin %>% 
+  sample_n(20)
+```
+
+From Figure 4, it appeared that the majority of countries’ restaurants had an average price rating of “pricey” or “affordable”, since the most points can be seen in those two categories. It was surprising that the “cheap” category had more countries in it than the “premium” category because, instinctively, one would think of really high-end and expensive restaurants when Michelin Stars are mentioned. One possible interpretation for why there were more countries in the “cheap” category than the “premium” category is that there were a lot of NA values in the “Price Rating” column (due to the lack of price data on those countries’ restaurants), and a bunch of those countries might have “Premium” as their “Price Rating” value. There are 161 NA values in total in the “Price Rating” column, meaning the majority of countries didn’t have a “Price Rating” value. From the sample of the table shown in Figure 4.1, it can be seen that there are a lot of NA values in the “Price Rating” column. 
+
+
+The country with the most Michelin stars in the Affordable category is Japan by far. Countries with the most Michelin stars in the Pricey category are France, Germany, Spain, and the U.S.. No countries in the Cheap or Premium category have more than 50 Michelin stars in total. 
+
+
+
+
 
 # Findings 
 
